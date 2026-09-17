@@ -1,8 +1,9 @@
 # Copyright (c) Microsoft. All rights reserved.
 
 import os
+from datetime import datetime, timedelta, timezone
 
-from agent_framework import Agent
+from agent_framework import Agent, tool
 from agent_framework.foundry import FoundryChatClient
 from agent_framework_foundry_hosting import ResponsesHostServer
 from azure.identity import DefaultAzureCredential
@@ -10,6 +11,89 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+
+@tool(approval_mode="never_require")
+def obter_data_e_hora_atual() -> str:
+    """Retorna a data e hora atual precisa, com fuso horário de Brasília (UTC-3) e UTC."""
+    tz_br = timezone(timedelta(hours=-3))
+    now_br = datetime.now(tz_br)
+    now_utc = datetime.now(timezone.utc)
+    dias = [
+        "Segunda-feira",
+        "Terça-feira",
+        "Quarta-feira",
+        "Quinta-feira",
+        "Sexta-feira",
+        "Sábado",
+        "Domingo",
+    ]
+    dia_semana = dias[now_br.weekday()]
+    return (
+        f"Data/Hora em Brasília (UTC-3): {now_br.strftime('%d/%m/%Y %H:%M:%S')} ({dia_semana})\n"
+        f"Data/Hora UTC: {now_utc.strftime('%d/%m/%Y %H:%M:%S UTC')}"
+    )
+
+
+@tool(approval_mode="never_require")
+def consultar_mapa_arquitetura(componente: str) -> str:
+    """Consulta detalhes técnicos de infraestrutura, portas, serviços e caminhos do ecossistema WashingtonProNet.
+
+    Args:
+        componente: Nome do componente ou subsistema a consultar ('glpi', 'nuvem', 'ia', 'portas', 'todos').
+    """
+    comp = (componente or "").lower().strip()
+
+    glpi_info = (
+        "=== Módulo GLPI ===\n"
+        "- Preenchedor GLPI Beta: C:\\Users\\washingtonpronet\\OneDrive\\Documentos\\GitHub\\Preenchedor-glpi-beta\\_GLPI\\Preenchedor-glpi-beta-ux-improvements-and-fixes\n"
+        "- Worktrees Copilot: C:\\Users\\washingtonpronet\\copilot-worktrees\\Preenchedor-glpi-beta\\ (branches: washingtonwdc-friendly-happiness, washingtonwdc-refactored-bassoon)\n"
+        "- Extensão Chrome: C:\\Users\\washingtonpronet\\ProjetosDev\\_Extensoes-Chrome\\Extensão_Glpi (Manifest V3)\n"
+        "- Inventário Desktop: C:\\Users\\washingtonpronet\\Desktop\\GLPI_Inventario (166+ laudos técnicos)\n"
+        "- Automação VM Azure: glpi-daemon.service (3x Chrome Headless CDP portas 9222, 9223, 9224, loop 60s, bot @dpzglpi_bot)\n"
+        "- WhatsApp Sandbox: Flask webhook porta 5005, WhatsApp Cloud API v20.0"
+    )
+
+    nuvem_info = (
+        "=== Infraestrutura Cloud & Redes ===\n"
+        "- VM Primária: vm-9router-gateway (172.176.123.182, Ubuntu 24.04 LTS, East US 2, Running 24/7)\n"
+        "- SSH: ~/.ssh/id_rsa_azure.pem (ssh vps-azure)\n"
+        "- Túneis: SOCKS5 local porta 1080 | Túnel SSH Reverso porta 10800\n"
+        "- Azure AI Foundry: Hub agent-framework-agent-basic-resp, East US 2, modelo gpt-5.4-mini\n"
+        "- Assinatura: Azure for Students (08902f7d-a0fd-448e-bc2e-6bf8b5998bed)\n"
+        "- WSL2: Ubuntu 24.04.4 LTS Noble Numbat com Docker Desktop integrado sob demanda"
+    )
+
+    ia_info = (
+        "=== Inteligência Artificial & Multiagentes ===\n"
+        "- Claude Gemini Proxy: C:\\Users\\washingtonpronet\\claude-gemini-proxy (proxy_server.py porta 4000, painel.ps1)\n"
+        "- Antigravity CLI (agy): Google DeepMind Coding Agent local e remoto na VM Azure via SSH\n"
+        "- DeepSeek Harness (dsh): Runtime autônomo Web UI http://127.0.0.1:3080\n"
+        "- Suíte Terminal: Tríade IA (Alt+Shift+M) e Grade 2x2 (iniciar_multiagentes.ps1)\n"
+        "- Segundo Cérebro Obsidian: C:\\Users\\washingtonpronet\\OneDrive\\Documentos\\Obsedian (Git: washingtonwdc/obsidian-vault)"
+    )
+
+    portas_info = (
+        "=== Mapeamento de Portas Operacionais ===\n"
+        "- 1080: Túnel SOCKS5 local (Bypass seguro via VM Azure)\n"
+        "- 3080: DeepSeek Harness (dsh) Web UI\n"
+        "- 4000: Claude Gemini Proxy Server (Claude Code -> Gemini 2.5 Flash/Pro)\n"
+        "- 5005: Webhook Preenchedor GLPI / WhatsApp Sandbox\n"
+        "- 8088: Azure AI Agent Host (Responses Protocol / azd ai agent run)\n"
+        "- 9222, 9223, 9224: Chrome Headless CDP Workers (VM Azure CeSU GLPI)\n"
+        "- 10800: Túnel SSH Reverso na VM Azure"
+    )
+
+    if "glpi" in comp:
+        return glpi_info
+    elif "nuvem" in comp or "cloud" in comp or "azure" in comp or "vm" in comp:
+        return nuvem_info
+    elif "ia" in comp or "agent" in comp or "proxy" in comp:
+        return ia_info
+    elif "porta" in comp or "port" in comp or "rede" in comp:
+        return portas_info
+    else:
+        return f"{glpi_info}\n\n{nuvem_info}\n\n{ia_info}\n\n{portas_info}"
 
 
 def main():
@@ -109,6 +193,7 @@ D) GLPI Inventário Desktop:
     agent = Agent(
         client=client,
         instructions=instructions,
+        tools=[obter_data_e_hora_atual, consultar_mapa_arquitetura],
         # History will be managed by the hosting infrastructure, thus there
         # is no need to store history by the service. Learn more at:
         # https://developers.openai.com/api/reference/resources/responses/methods/create

@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🤖 Azure AI Agent: Chat Interativo",
+      "type": "shell",
+      "command": "ai",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      }
+    },
+    {
+      "label": "🤖 Azure AI Agent: Analisar Arquivo Atual",
+      "type": "shell",
+      "command": "ai 'Analise criticamente este arquivo, verifique conformidade tecnica e aponte sugestoes de melhorias:' -f '${file}'",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      }
+    },
+    {
+      "label": "🤖 Azure AI Agent: Status & Conexão Foundry",
+      "type": "shell",
+      "command": "ai status",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "🤖 Azure AI Agent: Monitoramento de Custos",
+      "type": "shell",
+      "command": "ai custos",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "🤖 Azure AI Agent: Fazer Deploy na Nuvem (azd deploy)",
+      "type": "shell",
+      "command": "azd deploy",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      }
+    }
+  ]
+}

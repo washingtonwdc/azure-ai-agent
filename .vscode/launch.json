@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🤖 Azure AI Agent (Agent Inspector)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/agent-framework-agent-basic-responses/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/src/agent-framework-agent-basic-responses",
+      "envFile": "${workspaceFolder}/.azure/agent-framework-agent-basic-responses-dev/.env"
+    }
+  ]
+}
